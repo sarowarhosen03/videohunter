@@ -4,6 +4,7 @@ const path = require("path");
 const { PythonShell } = require("python-shell");
 const pool = require("../Db/db");
 const uploadFile = require("../dr");
+let eXtname = ".webm";
 async function addclass(req, res) {
   res.render("index");
 }
@@ -14,20 +15,17 @@ async function adding(req, res) {
   sendlog(req, "requst accepted start process");
 
   classnumber = classnumber.count;
-  sendlog(
-    req,
-    "Start Downloading video file" + path.basename(video) + path.extname(video)
-  );
+  console.log(classnumber);
+  sendlog(req, "Start Downloading video file" + path.basename(video));
 
-  let videores = await downloadfile(video, "v" + path.extname(video), req);
+  let videores = await downloadfile(video, "v" + eXtname, req);
   if (videores) {
     sendlog(
       req,
       "Start Downloading audio file" +
-        path.basename(audio) +
-        path.extname(audio)
+        path.basename(audio) 
     );
-    let audiores = await downloadfile(audio, "a" + path.extname(audio), req);
+    let audiores = await downloadfile(audio, "a" + eXtname, req);
     if (audiores) {
       sendlog(
         req,
@@ -49,10 +47,10 @@ async function adding(req, res) {
             await pool(sql);
             sendlog(req, "inseert complete on database");
             sendlog(req, "clear demp files");
-            fs.unlink("./temp/v" + path.extname(video), (err) => {
+            fs.unlink("./temp/v" + eXtname, (err) => {
               if (err != null) sendlog(req, " error at clear demp files");
             });
-            fs.unlink("./temp/a" + path.extname(audio), (err) => {
+            fs.unlink("./temp/a" + eXtname, (err) => {
               if (err != null) sendlog(req, " error at clear demp files");
             });
             fs.unlink("./temp/output.mp4", (err) => {
@@ -86,10 +84,8 @@ function sendlog(req, msg) {
 }
 
 function runpython(req, res, video, audio) {
-  let videopath = path.resolve(__dirname, "../temp", "v" + path.extname(video));
-  let audiopath = path.resolve(__dirname, "../temp", "a" + path.extname(audio));
-  // let videopath =   path.resolve(__dirname, "../temp", "a"+path.extname(video))
-  // let audiopath=   path.resolve(__dirname, "../temp", "a"+path.extname(audio))
+  let videopath = path.resolve(__dirname, "../temp", "v" + eXtname);
+  let audiopath = path.resolve(__dirname, "../temp", "a" + eXtname);
   let options = {
     scriptPath: path.resolve(__dirname, "../", ""),
     args: [videopath, audiopath],
@@ -98,13 +94,15 @@ function runpython(req, res, video, audio) {
     PythonShell.run("main.py", options, function (err, respy) {
       if (err) {
         console.log(err);
-        sendlog(req, toString(err));
+        sendlog(req, err);
         sendlog(
           req,
           toString("problem while compres video audio in python file")
         );
+
         sendlog(req, "process stoped");
         res.json({ code: 400, msg: "failed" });
+        reject(false);
         //reject(false);
       }
       if (respy) {
