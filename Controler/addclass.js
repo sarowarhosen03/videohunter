@@ -11,7 +11,7 @@ async function addclass(req, res) {
 async function adding(req, res) {
   let { video, audio, subject, chepter, slideurl } = req.body;
 
-  let classnumber = await pool("select count(*) as count from class ");
+  let classnumber = await pool(`select count(*) as count from class where chepter='${chepter}'`);
   sendlog(req, "requst accepted start process");
 
   classnumber = classnumber[0].count;
@@ -37,7 +37,7 @@ async function adding(req, res) {
       if (pyresponse) {
         try {
           sendlog(req, "Start uploading on google drive");
-          let uploadResponse = await uploadFile(path.basename(video), subject,classnumber+1);
+          let uploadResponse = await uploadFile(path.basename(video), subject,classnumber+1,chepter);
           if (uploadResponse.status) {
             sendlog(req, "succuess fully uploaded on google drive");
             sendlog(req, "inseert on database");

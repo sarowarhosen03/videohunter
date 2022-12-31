@@ -8,7 +8,7 @@ const MATH = "1SOdBeixumsSXBqVlV0IFCtMmbI1weWGh";
 const PHYSICS = "1cg4ucE5w2BGtl69AZobpVqqlIC2XtVFn";
 const CHEMISTRY = "1XuWBXQb3XY0t7kjhxu6AmG_38hPZgZec";
 
-async function uploadFile(filename, subject,classnumber) {
+async function uploadFile(filename, subject,classnumber,chepter) {
   try {
     const auth = new google.auth.GoogleAuth({
       keyFile: "./googlekey.json",
@@ -42,7 +42,7 @@ async function uploadFile(filename, subject,classnumber) {
     }
     console.log(filename);
     const fileMetaData = {
-      name: `${classnumber}`+filename,
+      name: `${classnumber}_${chepter}.mp4`,
       parents: [folderid],
     };
 
